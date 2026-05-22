@@ -1,0 +1,93 @@
+=== Tests histogram.c ===
+
+[H1] insert_couple / get_count
+  [OK] get_count(10,20) == 3 apres 3 insertions
+  [OK] get_count(10,21) == 0 couple absent
+  [OK] get_count(20,10) == 0 ordre different
+
+[H2] decrement_count
+  [OK] count == 1 apres 1 decrement
+  [OK] count == 0 apres 2 decrements
+  [OK] count reste 0, ne passe pas negatif
+
+[H3] build_histogram
+  [OK] get_count(10,11) == 3
+  [OK] get_count(11,10) == 2
+  [OK] get_count(10,12) == 1
+  [OK] get_count(12,10) == 2
+  [OK] get_count(10,10) == 0 transition absente
+
+[H4] copy_histogram
+  [OK] Original inchange (count == 2)
+  [OK] Copie decrementee (count == 1)
+=== Tests series.c ===
+
+[S1] read_series — Data/x10.dat
+  [OK] read_series retourne non NULL
+  [OK] n == 10 echantillons
+
+[S2] read_series — fichier inexistant
+Erreur ouverture fichier
+  [OK] retourne NULL pour fichier inexistant
+
+[S3] quantize_series — 10 valeurs connues
+  [OK] retourne non NULL
+  [OK] xQ[0] == 100  (100 pair)
+  [OK] xQ[1] == 100  (101 impair -> 100)
+  [OK] xQ[2] == 200  (200 pair)
+  [OK] xQ[3] == 200  (201 impair -> 200)
+  [OK] xQ[4] == -2   (-1 impair -> -2)
+  [OK] xQ[5] == -2   (-2 pair)
+  [OK] xQ[6] == 0    (0 pair)
+  [OK] xQ[7] == 0    (1 impair -> 0)
+  [OK] xQ[8] == 32766 (32767 impair -> 32766)
+  [OK] xQ[9] == 32766 (32766 pair)
+
+[S4] quantize_series — toutes valeurs paires
+  [OK] retourne non NULL
+  [OK] toutes les valeurs de xQ sont paires
+=== Tests tree.c ===
+
+[T1] creer_fils — valeur paire -> filsG
+  [OK] fils->valeur == 20
+  [OK] fils->pere == pere
+  [OK] pere->filsG == fils (20 pair)
+  [OK] pere->filsD == NULL
+  [OK] Px fils decremente : count == 2
+  [OK] Px pere intact : count == 3
+
+[T2] creer_fils — valeur impaire -> filsD
+  [OK] pere->filsD == fils (21 impair)
+  [OK] pere->filsG == NULL
+
+[T3] construire — noeud mort (dead=1)
+  [OK] dead == 1
+  [OK] branches_valides == 0
+
+[T4] construire — feuille au rang final
+  [OK] branches_valides == 1
+  [OK] Px libere apres feuille
+
+[T5] build_tree — signal pair n=3
+  [OK] racine non NULL
+  [OK] root->pere == NULL (racine fictive)
+  [OK] root->valeur == 0
+  [OK] au moins 1 solution trouvee
+=== Tests d integration ===
+
+[I1] read_series -> build_histogram (Data/x10.dat)
+  [OK] n == 10 echantillons lus
+  [OK] histogramme non vide apres build_histogram(lu)
+
+[I2] hash_table inchange apres build_tree
+  [OK] hash_table inchange apres build_tree
+  [OK] au moins 1 solution trouvee
+
+[I3] Chaine complete : read -> histo -> quantize -> build_tree
+  [OK] racine non NULL
+  [OK] au moins 1 solution trouvee
+
+[I4] Aucun Px residuel apres build_tree
+  [OK] aucun Px residuel dans l arbre
+
+Résultat : 52/52 tests passés
